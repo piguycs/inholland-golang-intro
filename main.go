@@ -1,49 +1,51 @@
 package main
 
 import (
-	"errors"
+	"bufio"
 	"fmt"
-	"runtime"
+	"os"
+	"strings"
 )
 
-func sum(a, b, c int) int {
-	return a + b + c
-}
-
-func dv(a, b int) (int, error) {
-	if b == 0 {
-		return 0, errors.New("Could not divide by zero")
-	}
-	return a / b, nil
+type LogEntry struct {
+	IP     string
+	Method string
+	Path   string
+	Status string
 }
 
 func main() {
-	var osname string
-	switch runtime.GOOS {
-	case "windows", "darwin":
-		osname = "StupidOS"
-	case "linux":
-		osname = "GoatOS"
-	default:
-		osname = "hopefully TempleOS"
+	// logs.log is from https://pastebin.com/raw/fbW8wUZ7
+	file, err := os.OpenFile("logs.log", os.O_RDONLY, os.ModePerm)
+	if err != nil {
+		fmt.Printf("ERROR: %s\n", err.Error())
+		return
+	}
+	defer file.Close()
+
+	reader := bufio.NewReader(file)
+
+	logs := []LogEntry{}
+
+	for {
+		line, _, err := reader.ReadLine()
+		if err != nil {
+			// naievily gonna assume only error will be EOF
+			break
+		}
+
+		words := strings.Fields(string(line))
+
+		IP := words[0]
+		Method := words[5][1:]
+		Path := words[6]
+		Status := words[8]
+
+		logs = append(logs, LogEntry{IP, Method, Path, Status})
 	}
 
-	greeter := "World"
-	fmt.Printf("Hello %s on %s!\n", greeter, osname)
-
-	for i := range 5 {
-		fmt.Printf("%d\n", i)
-	}
-
-	if value, err := dv(1, 0); err != nil {
-		fmt.Printf("Error: %s\n", err.Error())
-	} else {
-		fmt.Printf("Div result: %d\n", value)
-	}
-
-	if value, err := dv(4, 2); err != nil {
-		fmt.Printf("Error: %s\n", err.Error())
-	} else {
-		fmt.Printf("Div result: %d\n", value)
+	fmt.Printf("Logfile has %d log entries\n", len(logs))
+	for i, logEntry := range logs {
+		fmt.Printf("%d %s\n", i, logEntry)
 	}
 }
