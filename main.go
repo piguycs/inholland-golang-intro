@@ -10,18 +10,18 @@ func sum(a, b, c int) int {
 }
 
 func main() {
-	var os string
+	var osname string
 	switch runtime.GOOS {
 	case "windows", "darwin":
-		os = "StupidOS"
+		osname = "StupidOS"
 	case "linux":
-		os = "GoatOS"
+		osname = "GoatOS"
 	default:
-		os = "hopefully TempleOS"
+		osname = "hopefully TempleOS"
 	}
 
 	greeter := "World"
-	fmt.Printf("Hello %s on %s!\n", greeter, os)
+	fmt.Printf("Hello %s on %s!\n", greeter, osname)
 
 	for i := range 5 {
 		fmt.Printf("%d\n", i)
